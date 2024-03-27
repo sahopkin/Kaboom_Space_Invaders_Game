@@ -1,0 +1,198 @@
+<script type="module">
+  import kaboom from "https://unpkg.com/kaboom@3000.0.1/dist/kaboom.mjs";
+
+  kaboom({
+    width: 869,
+    height: 669,
+    scale: 1,
+    font: "sans-serif",
+    background: [ 0, 0, 0 ],
+    });
+  
+  // console.log(width(), height())
+  loadSprite("ship", "https://raw.githubusercontent.com/sahopkin/Kaboom_Space_Invaders_Game/main/game_sprites/space_ship.png");
+  loadSprite("invader", "https://raw.githubusercontent.com/sahopkin/Kaboom_Space_Invaders_Game/main/game_sprites/space_invader.png");
+  loadSprite("wall", "https://raw.githubusercontent.com/sahopkin/Kaboom_Space_Invaders_Game/main/game_sprites/wall.png");
+
+
+  const MOVE_SPEED = 200;
+  const INVADER_SPEED = 200;
+  let CURRENT_SPEED = INVADER_SPEED;
+  const LEVEL_DOWN = 200;
+  const TIME_LEFT = 30;
+  const BULLET_SPEED = 400;
+  
+
+  scene("win", () => {
+    add([
+      text("YOU WIN!!!"),
+      anchor("center"),
+      scale(3),
+      pos(width() / 2, height() / 2)
+    ])
+
+    onKeyPress('space', () => {
+      go("game")
+    })
+
+  });
+
+
+
+  scene("lose", (score) => {
+    add([
+      text('You Lose'),
+      anchor("center"),
+      scale(4),
+      pos(width() / 2, height() / 2 - 100)
+    ])
+    
+    add([
+      text(score.value),
+      anchor("center"),
+      scale(5),
+      pos(width() / 2, height() / 2 + 100)
+    ])
+
+    onKeyPress('space', () => {
+      go("game")
+    })
+
+  });
+
+
+
+  scene("game", () =>{
+    const ui = add([
+      fixed(),
+      z(100),
+    ]);
+
+    addLevel([
+    '!^^^^^^^^^^^^          &',  //10 spaces
+    '!^^^^^^^^^^^^          &',
+    '!^^^^^^^^^^^^          &',
+    '!                      &',
+    '!                      &',
+    '!                      &',
+    '!                      &',
+    '!                      &',
+    '!                      &'  //22 spaces 
+    ], {
+      tileWidth: 32,
+      tileHeight: 32,
+      tiles: {
+        '^': () => [sprite('invader'), pos(), area(), scale(0.7), 'space-invader'],
+        '!': () => [sprite('wall'), area(), 'left-wall'],   
+        '&': () => [sprite('wall'), area(), 'right-wall']   
+      }
+    });
+
+    const player = add([
+      sprite('ship'),
+      pos(width() / 2, height() / 2),
+      area(),
+      anchor('center')    
+    ]);
+
+    onKeyDown('right', () => {
+      player.move(MOVE_SPEED, 0)
+    });
+
+    onKeyDown('left', () => {
+      player.move(-MOVE_SPEED, 0)
+    });
+
+    function spawnBullet(p) {
+      add([
+        rect(6, 18),
+        pos(p),
+        area(),
+        anchor("center"),
+        color(255, 255, 255),
+        move(UP, BULLET_SPEED),
+        offscreen({ destroy: true }),
+        'bullet'
+      ])
+    }
+
+    onKeyPress('space', () => {
+      spawnBullet(player.pos.add(0, -25))
+    })
+
+    onCollide('bullet', 'space-invader', (b,s) => {
+      destroy(b)
+      destroy(s)
+      score.value++
+      score.text = score.value
+    })
+
+    const score = ui.add([
+      text("0"),
+      pos(width()-95, 50),
+      scale(2),
+      {
+        value: 0
+      }
+    ])  
+
+    score.onUpdate(() => {
+      if(score.value == 36) {
+        go('win')
+      }
+    })
+
+    const timer = ui.add([
+      text('0'),
+      pos(width()-95, 260),
+      scale(2),
+      {
+        time: TIME_LEFT
+      }
+    ])
+
+    timer.onUpdate(() => {
+      timer.time -= dt()
+      timer.text = timer.time.toFixed(0)
+      if (timer.time <= 0) {
+        go('lose', score)
+      }
+    })
+
+    onUpdate('space-invader', (s) => {
+      s.move(CURRENT_SPEED, 0)
+    })
+
+    onCollide('space-invader', 'right-wall', () => {
+      CURRENT_SPEED = -INVADER_SPEED 
+      let invaders = get('space-invader', {recursive: true})
+      invaders.forEach( (invader) => {
+        invader.move(0, LEVEL_DOWN)
+      })
+    })
+    
+    onCollide('space-invader', 'left-wall', () => {
+      CURRENT_SPEED = INVADER_SPEED 
+      let invaders = get('space-invader', {recursive: true})
+      invaders.forEach( (invader) => {
+        invader.move(0, LEVEL_DOWN)
+      })
+    })
+
+    onUpdate('space-invader', (s) => {
+      if (s.pos.y >= height() / 2) {
+        go('lose', score)
+      }
+    })
+
+    player.onCollide('space-invader', () => {
+      destroy(player)
+      go('lose', score)
+    })
+
+  });
+
+  go("game")  
+
+
+</script>
