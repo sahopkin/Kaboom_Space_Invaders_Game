@@ -10,4 +10,4 @@ The game is built using Google Apps Script and deployed as a WebApp. In order to
   
 The Kaboom code is all written within the js.html file. Sprites for the game are located in the Game_Sprites folder.
 
-Link to playable version of the game: [Kaboom Space Invaders Game v3](https://script.google.com/macros/s/AKfycbw0-xPVj51x9qW_Szw2pdUOpJD6Wksy-xZFbIZXp0rHCG3xsj16ahUnOTuv6ygYN8g/exec)
+Link to playable version of the game: [Kaboom Space Invaders Game v5](https://script.google.com/macros/s/AKfycbzgdsH0Igjvao7uzMEjR5xmlbRWsR-B1wg_NZaa0iy0PzLVLE-8dOiEOB2ju-zY-inFIA/exec)
