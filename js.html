@@ -54,7 +54,13 @@
       pos(width() / 2, height() / 2 + 100)
     ])
 
-    onKeyPress('space', () => {
+    add([
+      text('Press the "Z" key to restart the game'),
+      anchor("center"),
+      pos(width() / 2, height() / 2 + 200)
+    ])
+
+    onKeyPress('z', () => {
       go("game")
     })
 
@@ -125,6 +131,7 @@
       destroy(s)
       score.value++
       score.text = score.value
+      shake(3)
     })
 
     const score = ui.add([
